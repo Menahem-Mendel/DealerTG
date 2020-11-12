@@ -1,8 +1,9 @@
 from collections import deque
-from typing import Any
+from re import match
 
 import telegram
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, Update,
+                      replymarkup)
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler,
                           conversationhandler)
@@ -13,30 +14,58 @@ stack = deque()
 
 
 class Controller:
-
     def __init__(self, controllers: list = []):
         self.controllers = controllers
-        self.page = page.Page(self.controllers)
         self.handlers = [controller.conv() for controller in self.controllers]
+        self.state = self.entry
+        self.page = page.Page(controllers=self.controllers)
+
+    def init(self, controllers: list = []):
+        self.controllers = controllers
+        self.handlers = [controller.conv() for controller in self.controllers]
+        self.page = page.Page(controllers=self.controllers)
+        return self
+
+    def back(self, update: Update, context: CallbackContext):
+        if len(context.user_data.get(consts.BACK)) > 1 and update.callback_query.data == context.user_data.get(consts.BACK)[-2]:
+            context.user_data[consts.BACK].pop()
+            context.user_data[consts.BACK].pop()
+
+        return self.handler(update, context)
 
     def handler(self, update: Update, context: CallbackContext):
-        if update.callback_query:
-            self.back_handler(update, context)
+        markup = self.page.markup()
 
-            update.callback_query.answer()
+        if not context.user_data.get(consts.BACK):
+            context.user_data.update({consts.BACK: []})
+            context.user_data[consts.BACK].append(f'{self.entry}')
+
+        if update.callback_query:
+            if update.callback_query.data == consts.HOME:
+                context.user_data.update({consts.BACK: []})
+            else:
+                markup = self.page.markup([[
+                    InlineKeyboardButton(
+                        text=consts.BACK, callback_data=f'{context.user_data.get(consts.BACK)[-1]}')
+                ]])
+
+            context.user_data[consts.BACK].append(f'{self.entry}')
+
             update.callback_query.edit_message_text(
                 text=self.page.text,
-                reply_markup=self.page.markup(),
+                reply_markup=markup,
                 parse_mode=telegram.ParseMode.HTML)
+
+            update.callback_query.answer()
 
         elif update.message:
             if update.message.text:
                 update.message.reply_text(
                     text=self.page.text,
-                    reply_markup=self.page.markup(),
+                    reply_markup=markup,
                     parse_mode=telegram.ParseMode.HTML)
 
-        return self.entry
+        return self.state
 
     def conv(self):
         return ConversationHandler(
@@ -45,37 +74,10 @@ class Controller:
                 CallbackQueryHandler(self.handler, pattern=f'^{self.entry}$'),
             ],
             states={
-                self.entry: self.handlers,
+                self.state: self.handlers,
             },
             fallbacks=[
                 CallbackQueryHandler(
-                    self.handler, pattern=f'^{consts.BACK}{self.entry}$'),
-                # CallbackQueryHandler(
-                #     self.end, pattern=f'{consts.END}')
+                    self.back, pattern=f'^{self.entry}$'),
             ],
         )
-
-    def back_handler(self, update: Update, context: CallbackContext):
-        if update.callback_query.data is not f'{consts.BACK}{context.user_data.get(consts.BACK)}':
-            # print(f'{stack}.append({context.user_data.get(consts.BACK)})')
-            if context.user_data.get(consts.BACK):
-                stack.append(context.user_data.get(consts.BACK))
-                if self.entry is not consts.HOME:
-                    self.page.back([
-                        InlineKeyboardButton(
-                            text=consts.BACK, callback_data=f'{consts.BACK}{context.user_data.get(consts.BACK)}')
-                    ])
-            # print(f'{context.user_data}.update({{{consts.BACK}: {self.entry}}})')
-            context.user_data.update({consts.BACK: self.entry})
-        else:
-            context.user_data[consts.BACK] = stack.pop()
-            update.callback_query.answer()
-
-    def handle_func(self, pattern: str, handler):
-        self.handlers.append(
-            CallbackQueryHandler(handler, pattern=f'{pattern}'))
-        self.page.add_btns([
-            [InlineKeyboardButton(text=pattern, callback_data=pattern)]
-        ])
-
-        return

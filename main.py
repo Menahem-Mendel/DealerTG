@@ -8,11 +8,17 @@ def main():
     updater = Updater(token="1212727091:AAFcRS0ZON0CBP0dntrgZy7IZwxZd40AAFM")
     dp = updater.dispatcher
 
+    l = location.LocationController()
+    s = search.SearchController([
+        l,
+    ])
+    d = deals.DealsController([
+        l,
+        s,
+    ])
     conv = home.HomeController([
-        search.SearchController(),
-        deals.DealsController([
-            location.LocationController()
-        ]),
+        s,
+        d,
     ]).conv()
 
     dp.add_handler(conv)

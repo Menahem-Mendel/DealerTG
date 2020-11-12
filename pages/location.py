@@ -16,9 +16,3 @@ class LocationController(controller.Controller):
     def __init__(self, controllers: list = []):
         super().__init__(controllers)
         self.page = LocationPage(self.controllers)
-
-    # def handler(self, update: Update, context: CallbackContext):
-    #     print('i was here')
-    #     # context.user_data[consts.LOCATION] = update.message.location
-
-    #     return self.back_handler(update, context)
