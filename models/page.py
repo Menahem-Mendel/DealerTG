@@ -11,6 +11,9 @@ class Page:
             [InlineKeyboardButton(text=controller.entry, callback_data=controller.entry)] for controller in self.controllers
         ]
 
+    def append(self, btn: list = []):
+        self.btns.append(btn)
+
     def markup(self, btns: list = []):
         keyboard = []
         keyboard.extend(self.btns)

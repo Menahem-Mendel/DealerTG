@@ -1,6 +1,8 @@
 from models import consts, controller, page
-from telegram import Update
-from telegram.ext import CallbackContext
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import (CallbackContext, CallbackQueryHandler,
+                          CommandHandler, ConversationHandler, Filters,
+                          MessageHandler, conversationhandler)
 
 
 class HomePage(page.Page):
@@ -15,4 +17,9 @@ class HomeController(controller.Controller):
 
     def __init__(self, controllers: list = []):
         super().__init__(controllers)
-        self.page = HomePage(self.controllers)
+        self.page = HomePage(controllers)
+        self.handle_func("like", "like", self.some_handler)
+
+    def some_handler(self, update: Update, context: CallbackContext):
+        if update.callback_query:
+            update.callback_query.answer()

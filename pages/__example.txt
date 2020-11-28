@@ -1,0 +1,13 @@
+class NamePage(page.Page):
+    def __init__(self, controllers: list = []):
+        super().__init__(controllers)
+
+    text = 'put some text here'
+
+
+class NameController(controller.Controller):
+    entry = consts.NAME_ENTRY
+
+    def __init__(self, controllers: list = []):
+        super().__init__(controllers)
+        self.page = NamePage(self.controllers)

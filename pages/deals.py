@@ -15,4 +15,4 @@ class DealsController(controller.Controller):
 
     def __init__(self, controllers: list = []):
         super().__init__(controllers)
-        self.page = DealsPage(self.controllers)
+        self.page = DealsPage(controllers)
