@@ -1,5 +1,1 @@
-
-import toml
-
-with open('config.toml') as config_file:
-    config = toml.load(config_file)
+token = "1212727091:AAFcRS0ZON0CBP0dntrgZy7IZwxZd40AAFM"

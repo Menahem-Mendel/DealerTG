@@ -1,9 +1,12 @@
+
+
 import telegram
 from models import consts, controller, page
-from telegram import InlineKeyboardButton, Update
+from telegram import InlineKeyboardButton, Update, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, Filters, MessageHandler
 
 import pages.deals
+import pages.location
 
 
 class SearchPage(page.Page):
@@ -19,33 +22,28 @@ class SearchController(controller.Controller):
     def __init__(self, controllers: list = []):
         super().__init__(controllers)
         self.page = SearchPage(controllers)
-    #     self.states[self.entry].append(MessageHandler(
-    #         Filters.text, callback=self.results)
-    #     )
+        self.handle_func(MessageHandler(Filters.text, callback=self.results))
 
-    # def results(self, update: Update, context: CallbackContext):
-    #     results = [
-    #         {
-    #             'photo': "https://www.w3schools.com/images/w3schools_green.jpg",
-    #             'page': pages.deals.DealsController(),
-    #         },
-    #         {
-    #             'photo': "https://www.w3schools.com/images/w3schools_green.jpg",
-    #             'page': pages.deals.DealsController(),
-    #         }
-    #     ]
+    def build(self):
+        return SearchController([
+            pages.location.LocationController(),
+        ])
 
-    #     # if update.callback_query:
-    #     #     if update.callback_query.data ==
-    #     if update.message:
-    #         if update.message.text:
-    #             for result in results:
-    #                 update.message.reply_photo(
-    #                     photo=result.get('photo'),
-    #                     parse_mode=telegram.ParseMode.HTML
-    #                 )
-    #                 update.message.reply_text(
-    #                     text=result.get('text'),
-    #                     reply_markup=result.get('page').markup(),
-    #                     parse_mode=telegram.ParseMode.HTML
-    #                 )
+    def results(self, update: Update, context: CallbackContext):
+        # self.handle_func(pages.deals.DealsController(), 'something')
+        update.message.reply_text(
+            text=self.page.text,
+            reply_markup=self.markup
+        )
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton(text=pages.deals.DealsController().build(
+            ).entry, callbackdata=pages.deals.DealsController().build().entry)]
+        ])
+        update.message.reply_text(
+            text='one',
+            reply_markup=markup
+        )
+        update.message.reply_text(
+            text='two',
+            reply_markup=markup
+        )

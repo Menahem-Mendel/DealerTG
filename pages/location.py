@@ -16,3 +16,6 @@ class LocationController(controller.Controller):
     def __init__(self, controllers: list = []):
         super().__init__(controllers)
         self.page = LocationPage(controllers)
+
+    def build(self):
+        return LocationController()

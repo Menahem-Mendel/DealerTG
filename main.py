@@ -2,23 +2,16 @@
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, PicklePersistence, Updater)
 
-from pages import deals, home, location, search
+from pages.home import Home
+
+import config
 
 
 def main():
-    pp = PicklePersistence(filename='state')
-    updater = Updater("1212727091:AAFcRS0ZON0CBP0dntrgZy7IZwxZd40AAFM",
-                      persistence=pp)
+    updater = Updater(config.token)
     dp = updater.dispatcher
 
-    conv = home.HomeController([
-        search.SearchController(),
-        deals.DealsController([
-            location.LocationController(),
-        ])
-    ]).conv()
-
-    dp.add_handler(conv)
+    dp.add_handler(Home.build().conv())
 
     updater.start_polling()
     updater.idle()

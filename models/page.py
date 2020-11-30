@@ -1,23 +1,31 @@
-from models import controller
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-from models import consts
 
 
 class Page:
+    # Page is a markup for page, but without any logic
+    # it is better to use it with by Controller
+
     def __init__(self, controllers: list = []):
-        self.controllers = controllers
         self.btns = [
-            [InlineKeyboardButton(text=controller.entry, callback_data=controller.entry)] for controller in self.controllers
+            [InlineKeyboardButton(text=controller.entry, callback_data=controller.entry)] for controller in controllers
         ]
+        self.back = []
 
     def append(self, btn: list = []):
+        # append - adds buttons to our page one's and for all so you cannot remove it
+
         self.btns.append(btn)
 
+    def back_func(self, btn: list = []):
+        self.back = btn
+
     def markup(self, btns: list = []):
+        # markup - builds the inline keyboard structure
+
         keyboard = []
         keyboard.extend(self.btns)
         keyboard.extend(btns)
+        keyboard.extend(self.back)
 
         return InlineKeyboardMarkup(
             keyboard

@@ -1,3 +1,4 @@
+import pages.location
 from models import consts, controller, page
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -16,3 +17,8 @@ class DealsController(controller.Controller):
     def __init__(self, controllers: list = []):
         super().__init__(controllers)
         self.page = DealsPage(controllers)
+
+    def build(self):
+        return DealsController([
+            pages.location.LocationController(),
+        ])
