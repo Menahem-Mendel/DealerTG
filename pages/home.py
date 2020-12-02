@@ -1,3 +1,4 @@
+import pages.profile
 import pages.search
 import pages.deals
 from models import consts, controller, page
@@ -25,6 +26,7 @@ class HomeController(controller.Controller):
         return HomeController([
             pages.search.SearchController(),
             pages.deals.DealsController(),
+            pages.profile.ProfileController(),
         ])
 
 

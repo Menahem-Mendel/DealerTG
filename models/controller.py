@@ -1,9 +1,9 @@
 
-import telegram
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, ParseMode,
+                      Update)
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler, Filters,
-                          MessageHandler, Handler)
+                          Handler, MessageHandler)
 
 from models import consts, page
 
@@ -23,6 +23,7 @@ class Controller:
             self.entry: [controller.build().conv()
                          for controller in controllers]
         }
+        self.previous
 
     def handler(self, update: Update, context: CallbackContext):
         # handler is a default handler starts always when user pressed inline button that leads to another page
@@ -34,15 +35,16 @@ class Controller:
             update.callback_query.edit_message_text(
                 text=self.page.text,
                 reply_markup=self.markup,
-                parse_mode=telegram.ParseMode.HTML
+                parse_mode=ParseMode.HTML
             )
             update.callback_query.answer()
+
         elif update.message:
             if update.message.text:
                 update.message.reply_text(
                     text=self.page.text,
                     reply_markup=self.markup,
-                    parse_mode=telegram.ParseMode.HTML
+                    parse_mode=ParseMode.HTML
                 )
 
         return self.entry
@@ -88,6 +90,7 @@ class Controller:
             if update.callback_query.data == consts.HOME:
                 context.user_data.update({consts.BACK: []})
             else:
+
                 back = [
                     InlineKeyboardButton(
                         text=consts.BACK, callback_data=f'{context.user_data.get(consts.BACK)[-1]}')
@@ -97,27 +100,37 @@ class Controller:
 
             context.user_data[consts.BACK].append(f'{self.entry}')
 
-    def handle_func(self, handler, text: str = '', pattern: str = ''):
-        # handle_func is a handler for buttons that doesn't deal with pages
-        # you can use it to proccess some algorithms by clicking button
-        if isinstance(handler, Controller):
-            self.states[self.entry].append(
-                handler.build().conv()
-            )  # add handler to our state
-            self.markup = self.page.markup([
-                [InlineKeyboardButton(text=text, callback_data=handler.entry)]
-            ])  # add button to our page
-        elif isinstance(handler, Handler):
-            self.states[self.entry].append(
-                handler,
-            )
+    '''
+    need to improve handle_func and extend function (except for controller)
+    '''
+    # there is a bag: we enter a function more times then it needs to be
+
+    def extend(self, controllers):
+        # controllers = [controllers] | [[handler, button]] | [[function, button]]
+        if isinstance(controllers[0], Controller):
+            # controller
+            self.states[self.entry].extend(
+                [controller.build().conv() for controller in controllers])
+            self.page.build(controllers)
+        elif isinstance(controllers[0][0], Handler):
+            # telegram handlers
+            self.states[self.entry].extend(
+                [controller[0] for controller in controllers])
+            self.page.append([controller[1] for controller in controllers])
         else:
-            self.states[self.entry].append(
-                CallbackQueryHandler(handler, pattern=f'^{pattern}$')
-            )  # add handler to our state
-            self.markup = self.page.markup([
-                [InlineKeyboardButton(text=text, callback_data=pattern)]
-            ])  # add button to our page
+            # custom function
+            self.states[self.entry].extend(
+                [controller[0] for controller in controllers])
+            self.page.append([controller[1] for controller in controllers])
+
+        self.markup = self.page.markup()  # add button to our page
+
+    # {Handler, pattern, text}
+    def handle_func(self, handlers, btns: list = [], pattern: str = ''):
+        self.states[self.entry].extend(
+            [handler[0] for handler in handlers])
+        self.page.append([handler[0] for handler in handlers])
+        self.markup = self.page.markup()  # add button to our page
 
     # deprecated
 

@@ -22,7 +22,7 @@ class SearchController(controller.Controller):
     def __init__(self, controllers: list = []):
         super().__init__(controllers)
         self.page = SearchPage(controllers)
-        self.handle_func(MessageHandler(Filters.text, callback=self.results))
+        # self.handle_func(MessageHandler(Filters.text, callback=self.results))
 
     def build(self):
         return SearchController([
@@ -35,10 +35,7 @@ class SearchController(controller.Controller):
             text=self.page.text,
             reply_markup=self.markup
         )
-        markup = InlineKeyboardMarkup([
-            [InlineKeyboardButton(text=pages.deals.DealsController().build(
-            ).entry, callbackdata=pages.deals.DealsController().build().entry)]
-        ])
+        markup = pages.deals.DealsController().build().page.markup()
         update.message.reply_text(
             text='one',
             reply_markup=markup

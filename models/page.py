@@ -11,10 +11,15 @@ class Page:
         ]
         self.back = []
 
+    def build(self, controllers: list = []):
+        self.btns.append([
+            InlineKeyboardButton(text=controller.entry, callback_data=controller.entry) for controller in controllers
+        ])
+
     def append(self, btn: list = []):
         # append - adds buttons to our page one's and for all so you cannot remove it
 
-        self.btns.append(btn)
+        self.btns.extend(btn)
 
     def back_func(self, btn: list = []):
         self.back = btn
