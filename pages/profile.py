@@ -1,46 +1,40 @@
-import pages.location
-import pages.search
-import pages.deals
+
 from models import consts, controller, page
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
-                          CommandHandler, ConversationHandler, Filters,
-                          MessageHandler, conversationhandler)
+                          CommandHandler, ConversationHandler, Dispatcher,
+                          Filters, MessageHandler, conversationhandler)
 
 
 class ProfilePage(page.Page):
-    def __init__(self, controllers: list = []):
-        super().__init__(controllers)
+    keyboard = [
+        [
+            InlineKeyboardButton(text='filter', callback_data=consts.FILTER)
+        ],
+        [
+            InlineKeyboardButton(text='pick location',
+                                 callback_data=consts.LOCATION),
+        ],
+    ]
 
-    text = 'genious'
+    text = 'search page'
 
 
 class ProfileController(controller.Controller):
-    entry = 'profile'
+    entry = consts.PROFILE
 
-    def __init__(self, controllers: list = []):
-        super().__init__(controllers)
-
-        self.page = ProfilePage(controllers)
-        self.extend([pages.location.LocationController(),
-                     pages.search.SearchController()])
-
-        self.extend([pages.deals.DealsController()])
-		# self.extend([])
-
-        # self.handle_func([CallbackQueryHandler(
-        #     callback=self.some, pattern='some')])
-		# self.state[self.entry].append()
-
-
-		
-    def some(self):
-        pass
-
-    def build(self):
-        return ProfileController([
-            pages.deals.DealsController(),
-        ])
+    def __init__(self):
+        super().__init__(ConversationHandler(
+            entry_points=[
+                CallbackQueryHandler(
+                    callback=self.handler_func, pattern=rf"^{self.entry}$")
+            ],
+            states={
+            },
+            fallbacks=[
+            ]
+        ))
+        self.page = ProfilePage()
 
 
-Profile = ProfileController()
+Profile = ProfileController().handler

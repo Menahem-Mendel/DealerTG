@@ -1,4 +1,6 @@
 
+import pages.deals
+import pages.profile
 import html
 import json
 import logging
@@ -9,7 +11,7 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
                           Filters, MessageHandler, PicklePersistence, Updater)
 from utils.logger import logger
 import config
-from pages.home import Home
+import pages.home
 
 
 # def error_handler(update: Update, context: CallbackContext):
@@ -36,13 +38,19 @@ from pages.home import Home
 
 #     # Finally, send the message
 #     update.message.reply_text(text=message, parse_mode=ParseMode.HTML)
+import pages.home
+
+import pages.search
 
 
 def main():
     updater = Updater(config.token)
     dp = updater.dispatcher
 
-    dp.add_handler(Home.build().conv())
+    dp.add_handler(pages.home.Home)
+    dp.add_handler(pages.search.Search)
+    dp.add_handler(pages.deals.Deals)
+    dp.add_handler(pages.profile.Profile)
     # dp.add_error_handler(error_handler)
 
     updater.start_polling()

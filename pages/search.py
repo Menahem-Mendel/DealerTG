@@ -1,17 +1,21 @@
 
-
-import telegram
 from models import consts, controller, page
-from telegram import InlineKeyboardButton, Update, InlineKeyboardMarkup
-from telegram.ext import CallbackContext, Filters, MessageHandler
-
-import pages.deals
-import pages.location
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ParseMode
+from telegram.ext import (CallbackContext, CallbackQueryHandler,
+                          CommandHandler, ConversationHandler, Filters,
+                          MessageHandler, conversationhandler, Dispatcher, CallbackContext)
 
 
 class SearchPage(page.Page):
-    def __init__(self, controllers: list = []):
-        super().__init__(controllers)
+    keyboard = [
+        [
+            InlineKeyboardButton(text='filter 🔬', callback_data=consts.SEARCH)
+        ],
+        [
+            InlineKeyboardButton(text='pick location 📍',
+                                 callback_data=consts.LOCATION),
+        ],
+    ]
 
     text = 'search page'
 
@@ -19,28 +23,35 @@ class SearchPage(page.Page):
 class SearchController(controller.Controller):
     entry = consts.SEARCH
 
-    def __init__(self, controllers: list = []):
-        super().__init__(controllers)
-        self.page = SearchPage(controllers)
-        # self.handle_func(MessageHandler(Filters.text, callback=self.results))
+    def __init__(self):
+        super().__init__(ConversationHandler(
+            entry_points=[
+                CallbackQueryHandler(
+                    callback=self.handler_func, pattern=rf"^{self.entry}$")
 
-    def build(self):
-        return SearchController([
-            pages.location.LocationController(),
-        ])
+            ],
+            states={
+                self.entry: [MessageHandler(Filters.text, self.search)]
+            },
+            fallbacks=[
+            ]
+        ))
+        self.page = SearchPage()
 
-    def results(self, update: Update, context: CallbackContext):
-        # self.handle_func(pages.deals.DealsController(), 'something')
-        update.message.reply_text(
-            text=self.page.text,
-            reply_markup=self.markup
-        )
-        markup = pages.deals.DealsController().build().page.markup()
-        update.message.reply_text(
-            text='one',
-            reply_markup=markup
-        )
-        update.message.reply_text(
-            text='two',
-            reply_markup=markup
-        )
+    def search(self, update: Update, context: CallbackContext):
+        if update.message:
+            update.message.reply_photo(
+                photo=open('assets/img/deal.png', 'rb'),
+                caption=f'{update.message.text}',
+                reply_markup=InlineKeyboardMarkup(self.markup),
+                parse_mode=ParseMode.HTML,
+            )  # send photo with text
+            update.message.reply_photo(
+                photo=open('assets/img/deal.png', 'rb'),
+                caption=f'{update.message.text}',
+                reply_markup=InlineKeyboardMarkup(self.markup),
+                parse_mode=ParseMode.HTML,
+            )  # send photo with text
+
+
+Search = SearchController().handler
