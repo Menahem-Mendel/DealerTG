@@ -2,7 +2,7 @@ from telegram.ext.conversationhandler import ConversationHandler
 
 END = ConversationHandler.END
 
-HOME = 'home'
+HOME = 'start'
 SEARCH = 'search'
 DEALS = 'deals'
 LOCATION = 'location'
