@@ -1,12 +1,13 @@
 
-from models import consts, controller, page
+from models import consts, controller
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ParseMode
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler, Filters,
                           MessageHandler, conversationhandler, Dispatcher, CallbackContext)
 
 
-class SearchPage(page.Page):
+class SearchPage(controller.Page):
+    entry = consts.SEARCH
     keyboard = [
         [
             InlineKeyboardButton(text='filter 🔬', callback_data=consts.SEARCH)
@@ -16,12 +17,7 @@ class SearchPage(page.Page):
                                  callback_data=consts.LOCATION),
         ],
     ]
-
     text = 'search page'
-
-
-class SearchController(controller.Controller):
-    entry = consts.SEARCH
 
     def __init__(self):
         super().__init__(ConversationHandler(
@@ -36,7 +32,6 @@ class SearchController(controller.Controller):
             fallbacks=[
             ]
         ))
-        self.page = SearchPage()
 
     def search(self, update: Update, context: CallbackContext):
         if update.message:
@@ -54,4 +49,4 @@ class SearchController(controller.Controller):
             )  # send photo with text
 
 
-Search = SearchController().handler
+Search = SearchPage().handler

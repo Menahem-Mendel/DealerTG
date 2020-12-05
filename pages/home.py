@@ -1,12 +1,14 @@
 
-from models import consts, controller, page
+from models import consts, controller
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler, Dispatcher,
                           Filters, MessageHandler, conversationhandler)
 
 
-class HomePage(page.Page):
+class HomePage(controller.Page):
+    entry = consts.HOME
+
     keyboard = [
         [
             InlineKeyboardButton(text='search 🔎', callback_data=consts.SEARCH)
@@ -28,10 +30,6 @@ class HomePage(page.Page):
 
     text = 'home page'
 
-
-class HomeController(controller.Controller):
-    entry = consts.HOME
-
     def __init__(self):
         super().__init__(ConversationHandler(
             entry_points=[
@@ -42,13 +40,12 @@ class HomeController(controller.Controller):
             ],
             states={
                 self.entry: [
-                    
+
                 ]
             },
             fallbacks=[
             ]
         ))
-        self.page = HomePage()
 
 
-Home = HomeController().handler
+Home = HomePage().handler

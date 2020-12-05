@@ -1,12 +1,13 @@
 
-from models import consts, controller, page
+from models import consts, controller
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler, Dispatcher,
                           Filters, MessageHandler, conversationhandler)
 
 
-class ProfilePage(page.Page):
+class ProfilePage(controller.Page):
+    entry = consts.PROFILE
     keyboard = [
         [
             InlineKeyboardButton(text='filter', callback_data=consts.FILTER)
@@ -19,10 +20,6 @@ class ProfilePage(page.Page):
 
     text = 'search page'
 
-
-class ProfileController(controller.Controller):
-    entry = consts.PROFILE
-
     def __init__(self):
         super().__init__(ConversationHandler(
             entry_points=[
@@ -34,7 +31,6 @@ class ProfileController(controller.Controller):
             fallbacks=[
             ]
         ))
-        self.page = ProfilePage()
 
 
-Profile = ProfileController().handler
+Profile = ProfilePage().handler
