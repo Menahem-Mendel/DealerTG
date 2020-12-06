@@ -32,7 +32,7 @@ class Location:
 
         elif self.point:
             print(self.point)
-            print(self.point[0] , self.point[1], "23")
+            print(self.point[0], self.point[1], "23")
             geo_results = geo_locator.reverse(
                 self.point[0] + ", " + self.point[1], language=self.lang)
         else:
@@ -77,7 +77,8 @@ class Location:
             self.city = address.get("town")
 
         self.point = (self.raw['lat'], self.raw['lon'])
-        self.country = address['country'].replace("Palestinian Territory", "Israel")
+        self.country = address['country'].replace(
+            "Palestinian Territory", "Israel")
         self.street = address.get("street")
         if self.street is None:
             self.street = address.get("road")
@@ -93,7 +94,7 @@ class Location:
         # Creates preview string of location
         if self.is_valid:
             preview = ""
-            print("creating preview", self.street,self.city,self.country)
+            print("creating preview", self.street, self.city, self.country)
             print(self.raw)
             if self.street:
                 preview = self.street + " " + self.city
@@ -128,7 +129,8 @@ class Location:
     def fix_city_name(self, city):
         results = requests.get("https://www.google.com/maps/place/" + city)
         data = results._content.decode("utf-8")
-        ncity = data.split("""property="og:title">""")[0].split('<meta content=')[-1]
+        ncity = data.split("""property="og:title">""")[
+            0].split('<meta content=')[-1]
         rep1 = "'" + '"'
         rep2 = '" ' + "'"
         ncity = ncity.replace(rep1, "")

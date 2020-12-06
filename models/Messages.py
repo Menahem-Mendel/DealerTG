@@ -18,7 +18,8 @@ class Messages:
 
     def get_string(self, path):
         class_name, var_name = path.split("/")
-        string_object = self.languages[self.lang].find("./" + class_name + "/string[@name='" + var_name + "']")
+        string_object = self.languages[self.lang].find(
+            "./" + class_name + "/string[@name='" + var_name + "']")
         if string_object is None:
             print("error: string - " + path + " not found")
             return None
@@ -50,4 +51,3 @@ class Messages:
         if xml_root is None:
             print("Error loading file - " + path)
         return xml_root
-

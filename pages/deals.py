@@ -9,29 +9,15 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
 class DealsPage(controller.Page):
     entry = consts.DEALS
 
-    photo = open('assets/img/deal.png', 'rb')
+    photo = 'assets/img/deal.png'
     keyboard = []
 
     text = 'search page'
 
     def __init__(self):
-        super().__init__(ConversationHandler(
-            entry_points=[
-                CallbackQueryHandler(
-                    callback=self.handler_func, pattern=rf"^{self.entry}$")
-            ],
-            states={
-                consts.USER: [
+        super().__init__({
 
-                ],
-                consts.ADMIN: [
-
-                ],
-            },
-            fallbacks=[
-
-            ]
-        ))
+        })
 
     def handler_func(self, update: Update, context: CallbackContext):
         self.keyboard = [
@@ -51,19 +37,25 @@ class DealsPage(controller.Page):
         self.back(update, context)
 
         if update.callback_query:
+            with open(self.photo, 'rb') as photo:
+                update.callback_query.edit_message_media(
+                    media=InputMediaPhoto(photo),
+                )  # send photo
+            update.callback_query.edit_message_caption(
+                caption=f'{self.text}',
+                reply_markup=InlineKeyboardMarkup(self.markup),
+                parse_mode=ParseMode.HTML,
+            )  # send text
 
-            update.callback_query.message.reply_photo(
-                photo=open('assets/img/deal.png', 'rb'),
-                caption=f'{self.entry}',
+            with open(self.photo, 'rb') as photo:
+                update.callback_query.edit_message_media(
+                    media=InputMediaPhoto(photo),
+                )  # send photo
+            update.callback_query.edit_message_caption(
+                caption=f'{self.text}',
                 reply_markup=InlineKeyboardMarkup(self.markup),
                 parse_mode=ParseMode.HTML,
-            )  # send photo with text
-            update.callback_query.message.reply_photo(
-                photo=open('assets/img/deal.png', 'rb'),
-                caption=f'{self.entry}',
-                reply_markup=InlineKeyboardMarkup(self.markup),
-                parse_mode=ParseMode.HTML,
-            )  # send photo with text
+            )  # send text
 
             update.callback_query.answer(
                 text='fuck',

@@ -9,6 +9,8 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
 class HomePage(controller.Page):
     entry = consts.HOME
 
+    photo = 'assets/img/home.png'
+
     keyboard = [
         [
             InlineKeyboardButton(text='search 🔎', callback_data=consts.SEARCH)
@@ -31,21 +33,9 @@ class HomePage(controller.Page):
     text = 'home page'
 
     def __init__(self):
-        super().__init__(ConversationHandler(
-            entry_points=[
-                CommandHandler(self.entry, self.handler_func),
-                CallbackQueryHandler(
-                    callback=self.handler_func, pattern=rf"^{self.entry}$")
+        super().__init__({
 
-            ],
-            states={
-                self.entry: [
-
-                ]
-            },
-            fallbacks=[
-            ]
-        ))
+        })
 
 
 Home = HomePage().handler

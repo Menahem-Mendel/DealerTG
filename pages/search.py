@@ -1,6 +1,6 @@
 
 from models import consts, controller
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ParseMode
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaPhoto, ParseMode
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler, Filters,
                           MessageHandler, conversationhandler, Dispatcher, CallbackContext)
@@ -8,6 +8,9 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
 
 class SearchPage(controller.Page):
     entry = consts.SEARCH
+
+    photo = 'assets/img/search.png'
+
     keyboard = [
         [
             InlineKeyboardButton(text='filter 🔬', callback_data=consts.SEARCH)
@@ -17,36 +20,36 @@ class SearchPage(controller.Page):
                                  callback_data=consts.LOCATION),
         ],
     ]
+
     text = 'search page'
 
     def __init__(self):
-        super().__init__(ConversationHandler(
-            entry_points=[
+        super().__init__({
+            self.entry: [
                 CallbackQueryHandler(
-                    callback=self.handler_func, pattern=rf"^{self.entry}$")
-
+                    callback=self.location, pattern=rf"^{consts.LOCATION}$")
             ],
-            states={
-                self.entry: [MessageHandler(Filters.text, self.search)]
-            },
-            fallbacks=[
+            consts.LOCATION: [
+                MessageHandler(Filters.location, self.location)
             ]
-        ))
+        })
 
-    def search(self, update: Update, context: CallbackContext):
+    def location(self, update: Update, context: CallbackContext):
+        if update.callback_query:
+            update.callback_query.message.reply_text(
+                text=f'send me location',
+                parse_mode=ParseMode.HTML,
+            )  # send text
+
+            update.callback_query.answer(
+                text='fuck',
+            )
+
+            return consts.LOCATION
         if update.message:
-            update.message.reply_photo(
-                photo=open('assets/img/deal.png', 'rb'),
-                caption=f'{update.message.text}',
-                reply_markup=InlineKeyboardMarkup(self.markup),
-                parse_mode=ParseMode.HTML,
-            )  # send photo with text
-            update.message.reply_photo(
-                photo=open('assets/img/deal.png', 'rb'),
-                caption=f'{update.message.text}',
-                reply_markup=InlineKeyboardMarkup(self.markup),
-                parse_mode=ParseMode.HTML,
-            )  # send photo with text
+            update.message.delete()
+            print(update.message.location)
+            return self.entry
 
 
 Search = SearchPage().handler
