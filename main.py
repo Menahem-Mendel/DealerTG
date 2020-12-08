@@ -10,8 +10,6 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
 
 import config
 import pages.deals
-#     # Finally, send the message
-#     update.message.reply_text(text=message, parse_mode=ParseMode.HTML)
 import pages.home
 import pages.profile
 import pages.search
@@ -41,17 +39,10 @@ def error_handler(update: Update, context: CallbackContext):
                              text=message, parse_mode=ParseMode.HTML)
 
 
-def back(update: Update, context: CallbackContext):
-    handler = context.user_data.get(consts.BACK)[-2]
-
-    context.user_data[consts.BACK].pop()
-    context.user_data[consts.BACK].pop()
-
-    return handler.handler_func(update, context)
-
-
 def main():
-    updater = Updater(config.token)
+    pp = PicklePersistence(filename='pickle')
+    updater = Updater(config.token, persistence=pp)
+    # updater = Updater(config.token)
     dp = updater.dispatcher
 
     dp.add_handler(pages.home.Home)

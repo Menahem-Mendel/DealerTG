@@ -1,0 +1,16 @@
+en:
+  home:
+    you can use this bot by clicking buttons, 
+    we have 11,251 users all over the world, 
+    please don’t share youre personal information and aggression
+  profile: |
+    name - %{name}
+    location - %{location}
+    rating - %{rating} of 10
+    chat - %{chat}
+    language - %{language}
+    description - %{description}
+  deal: |
+    seller - %{seller}
+    location - %{location}
+    description - %{description}

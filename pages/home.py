@@ -11,31 +11,30 @@ class HomePage(controller.Page):
 
     photo = 'assets/img/home.png'
 
-    keyboard = [
-        [
-            InlineKeyboardButton(text='search 🔎', callback_data=consts.SEARCH)
-        ],
-        [
-            InlineKeyboardButton(text='deals 💼', callback_data=consts.DEALS),
-            InlineKeyboardButton(
-                text='profile 👨‍', callback_data=consts.PROFILE),
-        ],
-        [
-            InlineKeyboardButton(
-                text='bookmarks 📑', callback_data=consts.BOOKMARKS)
-        ],
-        [
-            InlineKeyboardButton(text='help 💬', callback_data=consts.HELP),
-            InlineKeyboardButton(text='info ℹ️', callback_data=consts.INFO),
-        ],
-    ]
-
-    text = 'home page'
+    text = 'home'
 
     def __init__(self):
-        super().__init__({
+        super().__init__(
+            states={
 
-        })
+            },
+            keyboard=[
+                [
+                    ['search', consts.SEARCH]
+                ],
+                [
+                    ['deals', consts.DEALS],
+                    ['profile', consts.PROFILE],
+                ],
+                [
+                    ['bookmarks', consts.BOOKMARKS],
+                ],
+                [
+                    ['help', consts.HELP],
+                    ['info', consts.INFO],
+                ],
+            ]
+        )
 
 
 Home = HomePage().handler

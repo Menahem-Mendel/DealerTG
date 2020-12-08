@@ -11,28 +11,28 @@ class SearchPage(controller.Page):
 
     photo = 'assets/img/search.png'
 
-    keyboard = [
-        [
-            InlineKeyboardButton(text='filter 🔬', callback_data=consts.SEARCH)
-        ],
-        [
-            InlineKeyboardButton(text='pick location 📍',
-                                 callback_data=consts.LOCATION),
-        ],
-    ]
-
-    text = 'search page'
+    text = 'search'
 
     def __init__(self):
-        super().__init__({
-            self.entry: [
-                CallbackQueryHandler(
-                    callback=self.location, pattern=rf"^{consts.LOCATION}$")
-            ],
-            consts.LOCATION: [
-                MessageHandler(Filters.location, self.location)
+        super().__init__(
+            states={
+                self.entry: [
+                    CallbackQueryHandler(
+                        callback=self.location, pattern=rf"^{consts.LOCATION}$")
+                ],
+                consts.LOCATION: [
+                    MessageHandler(Filters.location, self.location)
+                ]
+            },
+            keyboard=[
+                [
+                    ['filter', consts.FILTER]
+                ],
+                [
+                    ['location', consts.LOCATION],
+                ],
             ]
-        })
+        )
 
     def location(self, update: Update, context: CallbackContext):
         if update.callback_query:
