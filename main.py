@@ -40,7 +40,7 @@ def error_handler(update: Update, context: CallbackContext):
 
 
 def main():
-    pp = PicklePersistence(filename='pickle')
+    pp = PicklePersistence(filename='pickle.pickle')
     updater = Updater(config.token, persistence=pp)
     # updater = Updater(config.token)
     dp = updater.dispatcher
