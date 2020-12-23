@@ -6,6 +6,8 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler, Filters,
                           MessageHandler, conversationhandler, Dispatcher, CallbackContext)
 
+from database.DataBase import User
+
 
 class DealsPage(controller.Page):
     entry = consts.DEALS
@@ -16,21 +18,54 @@ class DealsPage(controller.Page):
     def __init__(self):
         super().__init__(
             states={
+                self.entry: [
+                    ConversationHandler(
+                        entry_points=[
+                            CallbackQueryHandler(
+                                self.add_deal, pattern=rf'{consts.ADD_DEAL}')
+                        ],
+                        states={
+                            consts.EDIT_LOCATION: [MessageHandler(Filters.location, self.edit_location)],
+                            consts.EDIT_DESCRIPTION: [MessageHandler(Filters.text, self.edit_description)],
+                        },
+                        fallbacks=[
 
-            },
-            keyboard=[
-                [
-                    ['bookmark', consts.ADD_BOOKMARK]
-                ],
-                [
-                    ['profile', consts.PROFILE],
-                    ['chat', consts.TOCHAT],
-                ],
-                [
-                    ['order', consts.ORDER]
-                ],
-            ]
+                        ]
+                    )
+                ]
+            }
         )
+
+    def custom_handler(self, update: Update, context: CallbackContext):
+        user = User(update.callback_query.from_user.id)
+
+        self.keyboard = [
+            [
+                [
+                    '+', consts.ADD_DEAL
+                ]
+            ]
+        ]
+
+        self.text = self.get_string(f'text.deals')
+
+    def add_deal(self, update: Update, context: CallbackContext):
+        self.keyboard = []
+
+        self.text = self.get_string(f'text.edit_location')
+        self.markup = self.build_keyboard()
+        self.send_page(update, context)
+        return consts.EDIT_LOCATION
+
+    def edit_location(self, update: Update, context: CallbackContext):
+        self.text = self.get_string(f'text.edit_description')
+        self.send_page(update, context)  # reply to user sended message
+        return consts.EDIT_DESCRIPTION
+
+    def edit_description(self, update: Update, context: CallbackContext):
+        self.text = self.get_string(f'text.edit_description')
+        self.send_page(update, context)  # reply to user sended message
+        return self.entry
 
     # def handler_func(self, update: Update, context: CallbackContext):
     #     context.user_data[consts.ADMIN] = False
@@ -90,6 +125,4 @@ class DealsPage(controller.Page):
     #             update.callback_query.answer(
     #                 text='fuck',
     #             )
-
-
 Deals = DealsPage().handler

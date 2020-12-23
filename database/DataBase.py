@@ -1,5 +1,5 @@
 import sqlite3
-from struc import *
+from database.struc import *
 
 
 class db_object(dict):
@@ -54,7 +54,8 @@ class db_object(dict):
 
     def delete(self):
         # Setting and executing delete script
-        script = "DELETE FROM " + self.ob_type + " WHERE id='" + self['id'] + "'"
+        script = "DELETE FROM " + self.ob_type + \
+            " WHERE id='" + self['id'] + "'"
         self.c.execute(script)
         self.conn.commit()
 
@@ -103,7 +104,8 @@ class FindDeals:
     def find(self):
         search_settings = self.search_settings
         by_header = self.find_deals_by("headline", search_settings['text'])
-        by_description = self.find_deals_by("description", search_settings['text'])
+        by_description = self.find_deals_by(
+            "description", search_settings['text'])
         by_hashtags = self.find_deals_by("hashtags", search_settings['text'])
 
         header_score = 10
@@ -150,6 +152,3 @@ class FindDeals:
         results.reverse()
         results = [item[0] for item in results]
         return results
-
-
-

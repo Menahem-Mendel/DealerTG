@@ -14,6 +14,7 @@ class HomePage(controller.Page):
     text = 'home'
 
     def __init__(self):
+
         super().__init__(
             states={
 

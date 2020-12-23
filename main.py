@@ -39,18 +39,20 @@ def error_handler(update: Update, context: CallbackContext):
                              text=message, parse_mode=ParseMode.HTML)
 
 
+def plane_messages_handler(update, context):
+    update.message.delete()
+
+
 def main():
-    pp = PicklePersistence(filename='pickle.pickle')
+    pp = PicklePersistence(filename='pickle')
     updater = Updater(config.token, persistence=pp)
-    # updater = Updater(config.token)
     dp = updater.dispatcher
 
     dp.add_handler(pages.home.Home)
     dp.add_handler(pages.search.Search)
     dp.add_handler(pages.deals.Deals)
     dp.add_handler(pages.profile.Profile)
-
-    dp.add_error_handler(error_handler)
+    dp.add_handler(MessageHandler(Filters.all, plane_messages_handler))
 
     updater.start_polling()
     updater.idle()

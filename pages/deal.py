@@ -20,7 +20,7 @@ class DealPage(controller.Page):
             ]
         )
 
-    def handler_func(self, update: Update, context: CallbackContext):
+    def custem_handle(self, update: Update, context: CallbackContext):
         if context.user_data.get('admin') == True:
             self.keyboard = [
                 [
@@ -34,10 +34,7 @@ class DealPage(controller.Page):
                 ],
             ]
 
-            self.markup = self.build()
-
-        self.back(update, context)
-        self.reply(update, context)
+            self.markup = self.build_keyboard()
 
 
 Deal = DealPage().handler

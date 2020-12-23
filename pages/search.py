@@ -11,7 +11,9 @@ class SearchPage(controller.Page):
 
     photo = 'assets/img/search.png'
 
-    text = 'search'
+    defult_text = "search"
+
+    text = defult_text
 
     def __init__(self):
         super().__init__(
@@ -36,10 +38,8 @@ class SearchPage(controller.Page):
 
     def location(self, update: Update, context: CallbackContext):
         if update.callback_query:
-            update.callback_query.message.reply_text(
-                text=f'send me location',
-                parse_mode=ParseMode.HTML,
-            )  # send text
+            self.text = "ask_for_location"
+            self.send_page(update, context)
 
             update.callback_query.answer(
                 text='fuck',
@@ -47,8 +47,9 @@ class SearchPage(controller.Page):
 
             return consts.LOCATION
         if update.message:
-            update.message.delete()
             print(update.message.location)
+            self.text = self.defult_text
+            self.send_page(update, context)
             return self.entry
 
 
