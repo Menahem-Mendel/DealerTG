@@ -1,4 +1,4 @@
-from telegram.ext.conversationhandler import ConversationHandler
+from telegram.ext import ConversationHandler
 
 END = ConversationHandler.END
 
@@ -29,6 +29,8 @@ DISLIKE = 'dislike'
 USER = 'user'
 ADMIN = 'admin'
 
+#
+TEXT_VARS = 'textvars'
 HISTORY = 'history'
 BACK = 'back'
 DONE = 'done'

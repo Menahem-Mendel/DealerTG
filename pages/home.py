@@ -1,4 +1,3 @@
-
 from models import consts, controller
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
@@ -7,34 +6,31 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
 
 
 class HomePage(controller.Page):
-    entry = consts.HOME
-
-    photo = 'assets/img/home.png'
-
-    text = 'home'
+    entry: str = consts.HOME
+    photo: str = 'assets/img/home.png'
+    text: str = 'home'
+    keyboard: list = [
+        [
+            ['search', consts.SEARCH]
+        ],
+        [
+            ['deals', consts.DEALS],
+            ['profile', consts.PROFILE],
+        ],
+        [
+            ['bookmarks', consts.BOOKMARKS],
+        ],
+        [
+            ['help', consts.HELP],
+            ['info', consts.INFO],
+        ],
+    ]
 
     def __init__(self):
-
         super().__init__(
             states={
 
-            },
-            keyboard=[
-                [
-                    ['search', consts.SEARCH]
-                ],
-                [
-                    ['deals', consts.DEALS],
-                    ['profile', consts.PROFILE],
-                ],
-                [
-                    ['bookmarks', consts.BOOKMARKS],
-                ],
-                [
-                    ['help', consts.HELP],
-                    ['info', consts.INFO],
-                ],
-            ]
+            }
         )
 
 

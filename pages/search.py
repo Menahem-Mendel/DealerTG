@@ -1,19 +1,23 @@
-
 from models import consts, controller
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaPhoto, ParseMode
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      InputMediaPhoto, ParseMode, Update)
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
-                          CommandHandler, ConversationHandler, Filters,
-                          MessageHandler, conversationhandler, Dispatcher, CallbackContext)
+                          CommandHandler, ConversationHandler, Dispatcher,
+                          Filters, MessageHandler, conversationhandler)
 
 
 class SearchPage(controller.Page):
-    entry = consts.SEARCH
-
-    photo = 'assets/img/search.png'
-
-    defult_text = "search"
-
-    text = defult_text
+    entry: str = consts.SEARCH
+    photo: str = 'assets/img/search.png'
+    text: str = 'search'
+    keyboard: list = [
+        [
+            ['filter', consts.FILTER]
+        ],
+        [
+            ['location', consts.LOCATION],
+        ],
+    ]
 
     def __init__(self):
         super().__init__(
@@ -25,15 +29,7 @@ class SearchPage(controller.Page):
                 consts.LOCATION: [
                     MessageHandler(Filters.location, self.location)
                 ]
-            },
-            keyboard=[
-                [
-                    ['filter', consts.FILTER]
-                ],
-                [
-                    ['location', consts.LOCATION],
-                ],
-            ]
+            }
         )
 
     def location(self, update: Update, context: CallbackContext):

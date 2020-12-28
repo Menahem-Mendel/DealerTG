@@ -1,26 +1,23 @@
-
 import i18n
 import telegram
-from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
-                      InputMediaPhoto, ParseMode, Update, Chat)
+from database.DataBase import User
+from telegram import (Chat, InlineKeyboardButton, InlineKeyboardMarkup,
+                      InputMediaPhoto, ParseMode, Update)
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, ConversationHandler, Dispatcher,
                           Filters, Handler, MessageHandler)
 
 from models import consts
-from database.DataBase import User
 
 
 class Page:
-    photo = 'assets/img/home.png'
-    tg_photo = None
-    entry = 'base'
-    text = 'base'
+    tg_photo: str = None
+    photo: str = None  # e.g. 'assets/img/deal.png'
+    entry: str = None  # e.g. home
+    text: str = None  # e.g. ask_location
+    keyboard: list = []  # e.g. [[[text_id, callback]]]
 
-    def __init__(self, states: dict = {}, keyboard: list = []):
-        # keyboard is a [[[text_id, callback]]] which is converted to buttons
-        self.keyboard = keyboard
-
+    def __init__(self, states: dict = {}):
         self.handler = ConversationHandler(
             entry_points=[
                 CommandHandler(self.entry, self.main_handler) if self.entry == consts.HOME
@@ -38,8 +35,14 @@ class Page:
 
     def send_page(self, update: Update, context: CallbackContext):
         '''reply - replies to user message and returns him page markup'''
-        if update.callback_query:
 
+        text = self.get_string(f'text.{self.text}')  # get translated text
+        if context.user_data.get(consts.TEXT_VARS):
+            # if you want to specify text variables then
+            text = self.get_string(
+                f'text.{self.text}', **context.user_data.get(consts.TEXT_VARS))
+
+        if update.callback_query:
             if self.tg_photo is not None:
                 photo = self.tg_photo
             else:
@@ -50,7 +53,7 @@ class Page:
             )  # send photo
 
             update.callback_query.edit_message_caption(
-                caption=self.text,
+                caption=text,
                 reply_markup=InlineKeyboardMarkup(self.markup),
                 parse_mode=ParseMode.HTML,
             )  # send text with keyboard markup
@@ -75,7 +78,7 @@ class Page:
                     update.message.bot.edit_message_caption(
                         chat_id=last_message['chat_id'],
                         message_id=last_message['message_id'],
-                        caption=self.text,
+                        caption=text,
                         reply_markup=InlineKeyboardMarkup(self.markup),
                         parse_mode=ParseMode.HTML,
                     )  # send text with keyboard markup
@@ -83,8 +86,6 @@ class Page:
     def main_handler(self, update: Update, context: CallbackContext):
         # build keyboard markup with proper localization
         self.markup = self.build_keyboard()
-        self.text = self.get_string(f'text.{self.text}')
-        print(self.text, "texttt")
 
         self.custom_handler(update, context)
 
@@ -99,7 +100,7 @@ class Page:
         with open(self.photo, 'rb') as photo:
             message = update.message.reply_photo(
                 photo=photo,
-                caption=self.text,
+                caption=self.get_string(f'text.{self.text}'),
                 reply_markup=InlineKeyboardMarkup(self.markup),
                 parse_mode=ParseMode.HTML,
             )
@@ -184,9 +185,6 @@ class Page:
             messages_history.pop()
         context.user_data['messages_history'] = messages_history
 
-    def custom_handler(self, update: Update, context: CallbackContext):
-        pass
-
     def create_user(self, update: Update):
         user = update.message.from_user
         chat = update.message.bot.get_chat(chat_id=user.id).to_dict()
@@ -204,3 +202,6 @@ class Page:
         user_profile['photo'] = photos["photos"][-1][0]['file_id'] if photos['total_count'] > 0 else None
         user_profile.save()
         user_profile.close()
+
+    def custom_handler(self, update: Update, context: CallbackContext):
+        pass

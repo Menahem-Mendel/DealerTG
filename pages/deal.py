@@ -1,23 +1,21 @@
-
 from models import consts, controller
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaPhoto, ParseMode
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      InputMediaPhoto, ParseMode, Update)
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
-                          CommandHandler, ConversationHandler, Filters,
-                          MessageHandler, conversationhandler, Dispatcher, CallbackContext)
+                          CommandHandler, ConversationHandler, Dispatcher,
+                          Filters, MessageHandler, conversationhandler)
 
 
 class DealPage(controller.Page):
-    entry = consts.DEAL
-    photo = 'assets/img/deal.png'
-
-    text = 'deal'
+    entry: str = consts.DEAL
+    photo: str = 'assets/img/deal.png'
+    text: str = 'deal'
+    keyboard: list = []
 
     def __init__(self):
         super().__init__(
             states={
-            },
-            keyboard=[
-            ]
+            }
         )
 
     def custem_handle(self, update: Update, context: CallbackContext):

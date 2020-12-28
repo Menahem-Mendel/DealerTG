@@ -1,19 +1,17 @@
-
-import i18n
-from models import consts, controller
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaPhoto, ParseMode
-from telegram.ext import (CallbackContext, CallbackQueryHandler,
-                          CommandHandler, ConversationHandler, Filters,
-                          MessageHandler, conversationhandler, Dispatcher, CallbackContext)
-
 from database.DataBase import User
+from models import consts, controller
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      InputMediaPhoto, ParseMode, Update)
+from telegram.ext import (CallbackContext, CallbackQueryHandler,
+                          CommandHandler, ConversationHandler, Dispatcher,
+                          Filters, MessageHandler, conversationhandler)
 
 
 class DealsPage(controller.Page):
-    entry = consts.DEALS
-    photo = 'assets/img/deal.png'
-
-    text = 'deals'
+    entry: str = consts.DEALS
+    photo: str = 'assets/img/deal.png'
+    text: str = 'deals'
+    keyboard: list = []
 
     def __init__(self):
         super().__init__(
@@ -21,12 +19,10 @@ class DealsPage(controller.Page):
                 self.entry: [
                     ConversationHandler(
                         entry_points=[
-                            CallbackQueryHandler(
-                                self.add_deal, pattern=rf'{consts.ADD_DEAL}')
+                            MessageHandler(Filters.text, self.ask_description)
                         ],
                         states={
-                            consts.EDIT_LOCATION: [MessageHandler(Filters.location, self.edit_location)],
-                            consts.EDIT_DESCRIPTION: [MessageHandler(Filters.text, self.edit_description)],
+                            consts.EDIT_LOCATION: [MessageHandler(Filters.location, self.ask_location)],
                         },
                         fallbacks=[
 
@@ -46,24 +42,16 @@ class DealsPage(controller.Page):
                 ]
             ]
         ]
-
-        self.text = self.get_string(f'text.deals')
-
-    def add_deal(self, update: Update, context: CallbackContext):
-        self.keyboard = []
-
-        self.text = self.get_string(f'text.edit_location')
-        self.markup = self.build_keyboard()
-        self.send_page(update, context)
         return consts.EDIT_LOCATION
 
-    def edit_location(self, update: Update, context: CallbackContext):
-        self.text = self.get_string(f'text.edit_description')
+    def ask_description(self, update: Update, context: CallbackContext):
+        self.keyboard = []
+        self.text = f'text.ask_description'
         self.send_page(update, context)  # reply to user sended message
-        return consts.EDIT_DESCRIPTION
+        return consts.EDIT_LOCATION
 
-    def edit_description(self, update: Update, context: CallbackContext):
-        self.text = self.get_string(f'text.edit_description')
+    def ask_location(self, update: Update, context: CallbackContext):
+        self.text = f'text.ask_location'
         self.send_page(update, context)  # reply to user sended message
         return self.entry
 
