@@ -54,6 +54,8 @@ def main():
     dp.add_handler(pages.profile.Profile)
     dp.add_handler(MessageHandler(Filters.all, plane_messages_handler))
 
+    # dp.add_error_handler(error_handler)
+
     updater.start_polling()
     updater.idle()
 
