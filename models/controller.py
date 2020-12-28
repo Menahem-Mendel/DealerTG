@@ -108,26 +108,9 @@ class Page:
         # trying to load user data
         try:
             user_profile = User(update.message.from_user.id)
-            print("loded from dbbbb")
-        except Exception:
-            user = update.message.from_user
-            chat = update.message.bot.get_chat(chat_id=user.id).to_dict()
-            photos = update.message.bot.getUserProfilePhotos(user_id=user.id)
-            ['id', 'name', 'description',
-             'photo', 'raiting', 'channel', 'tg-username']
-            # print("creating new user", photos)
 
-            user_profile = User()
-            user_profile['id'] = str(user.id)
-            user_profile['name'] = f'{user.first_name} {user.last_name}'.replace(
-                " None", "")
-            user_profile['description'] = chat.get("bio")
-            user_profile['tg-username'] = user.username
-            user_profile['language'] = user.language_code
-            user_profile['photo'] = photos["photos"][-1][0]['file_id'] if photos else None
-            print("new user", user_profile)
-            user_profile.save()
-            # print(user_profile)
+        except Exception:
+            self.create_user(update)
 
     def add_back_button(self, update: Update, context: CallbackContext):
         '''
@@ -203,3 +186,21 @@ class Page:
 
     def custom_handler(self, update: Update, context: CallbackContext):
         pass
+
+    def create_user(self, update: Update):
+        user = update.message.from_user
+        chat = update.message.bot.get_chat(chat_id=user.id).to_dict()
+        photos = update.message.bot.getUserProfilePhotos(user_id=user.id)
+
+        name = user.first_name + " " if user.first_name else ""
+        name += user.last_name if user.last_name else ""
+
+        user_profile = User()
+        user_profile['id'] = str(user.id)
+        user_profile['name'] = name
+        user_profile['description'] = chat.get("bio")
+        user_profile['tg-username'] = user.username
+        user_profile['language'] = user.language_code
+        user_profile['photo'] = photos["photos"][-1][0]['file_id'] if photos['total_count'] > 0 else None
+        user_profile.save()
+        user_profile.close()
