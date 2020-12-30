@@ -24,12 +24,14 @@ EDIT_DESCRIPTION = 'editdescription'
 ADD_BOOKMARK = 'addbookmark'
 LIKE = 'like'
 DISLIKE = 'dislike'
+CANCEL = 'cancel'
 
 # permission
 USER = 'user'
 ADMIN = 'admin'
 
 #
+TEXT = 'text'
 TEXT_VARS = 'textvars'
 HISTORY = 'history'
 BACK = 'back'
