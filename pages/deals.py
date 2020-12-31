@@ -45,7 +45,7 @@ class DealsPage(controller.Page):
                 consts.KEYBOARD: [
                     [
                         [
-                            '+', consts.ADD_DEAL
+                            'add', consts.ADD_DEAL
                         ]
                     ]
                 ]
@@ -87,7 +87,7 @@ class DealsPage(controller.Page):
                 consts.KEYBOARD: [
                     [
                         [
-                            '+', consts.ADD_DEAL
+                            'add', consts.ADD_DEAL
                         ]
                     ]
                 ]
