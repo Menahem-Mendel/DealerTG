@@ -1,27 +1,28 @@
 en:
   home: home
-  search: search 🔎
-  deals: deals 💼
-  deal: show 👁️
-  add_deal: +
-  lets_chat: lets chat 💬
-  order: order 💳
-  edit: edit ⚙️
-  delete: delete ✝
-  profile: profile 👨‍
-  bookmarks: bookmarks 📑
-  bookmark: bookmark 📑
-  help: help 💬
-  info: info ℹ️
-  chat: lets chat 💬
-  comments: comments 💬
-  rogue: rogue ⚠️
-  like: like ❤️
-  dislike: dislike 💔
-  filter: filter 🔬
-  location: pick location 📍
+  search: Search 🔎
+  deals: Deals 💼
+  deal: Show 👁️
+  add: +
+  lets_chat: Lets chat 💬
+  order: Order 💳
+  edit: Edit ⚙️
+  profile: Profile 👨‍
+  bookmarks: Bookmarks 🗂️
+  bookmark: Bookmark 📎
+  help: Help 💬
+  info: Info ℹ️
+  comments: Comments 💬
+  rogue: Rogue ⚠️
+  like: Like ❤️
+  dislike: Fislike 💔
+  filter: Filter 🔬
+  location: Pick location 📍
   left: ⬅
   right: ➡
-  +: +
-  
-  back: back
+  categories: Categories 🛍️
+  trash: Trash 🗑️
+  remove: Remove 🗑️
+  resotre: Restore
+  cancel: Cancel
+  back: Back
