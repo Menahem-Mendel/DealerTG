@@ -27,7 +27,8 @@ class Page:
             fallbacks=[
                 CallbackQueryHandler(
                     self.main_handler, pattern=rf"^{self.entry}$"),
-            ],  # if you want to back to main state then specify this handlers
+
+            ],  # if you want to back to main state then specify this handlers,
             name=self.entry,
             persistent=True,
             allow_reentry=True,
@@ -35,127 +36,151 @@ class Page:
 
     def send_page(self, update: Update, context: CallbackContext):
         '''reply - replies to user message and returns him page markup'''
-
-        text = self.get_string(f'text.{self.text}')  # get translated text
+        # get translated text
+        text = self.get_string(f'text.{context.user_data.get(consts.TEXT)}')
         if context.user_data.get(consts.TEXT_VARS):
             # if you want to specify text variables then
             text = self.get_string(
-                f'text.{self.text}', **context.user_data.get(consts.TEXT_VARS))
+                f'text.{context.user_data.get(consts.TEXT)}',
+                **context.user_data.get(consts.TEXT_VARS)
+            )
 
-        if update.callback_query:
-            if self.tg_photo is not None:
-                photo = self.tg_photo
-            else:
-                photo = open(self.photo, 'rb')
+        markup = self.build_markup(update, context, 'en')
 
-            update.callback_query.edit_message_media(
-                media=InputMediaPhoto(photo),
-            )  # send photo
+        with open(context.user_data.get(consts.PHOTO), 'rb') as photo:
+            if context.user_data.get(consts.TG_PHOTO):
+                photo = context.user_data.get(consts.TG_PHOTO)
 
-            update.callback_query.edit_message_caption(
-                caption=text,
-                reply_markup=InlineKeyboardMarkup(self.markup),
-                parse_mode=ParseMode.HTML,
-            )  # send text with keyboard markup
+            if update.callback_query:
+                update.callback_query.edit_message_media(
+                    media=InputMediaPhoto(photo),
+                )  # send photo
 
-            update.callback_query.answer(
-                text='fuck',
-            )  # pop up after succesful clicking on the button
-        elif update.message:
-            with open(self.photo, 'rb') as photo:
+                update.callback_query.edit_message_caption(
+                    caption=text,
+                    reply_markup=markup,
+                )  # send text with keyboard markup
+
+                update.callback_query.answer(
+                    text='success',
+                )  # pop up after succesful clicking on the button
+
+            elif update.message:
                 update.message.delete()  # remove user command
-                if update.message.text and update.message.text.lower() == "/start":
-                    self.start_handler(update, context)
+
+                if update.message.text == '/start':
+                    # remove previous messages
+                    self.delete_history(update, context)
+
+                    with open(context.user_data.get(consts.PHOTO), 'rb') as photo:
+                        message = update.message.reply_photo(
+                            photo=photo,
+                            caption=self.get_string(
+                                f'text.{context.user_data.get(consts.TEXT)}'),
+                            reply_markup=markup,
+                        )
+                        context.user_data[consts.HISTORY].append(
+                            message)
+                    # send photo with text and keyboard markup
+                    # trying to load user data
+
+                    try:
+                        user_profile = User(
+                            update.message.from_user.id)
+                    except Exception:
+                        self.create_user(update)
                 else:
-                    last_message = context.user_data.get(
-                        "messages_history")[-1]
+                    last = context.user_data.get(
+                        consts.HISTORY)[-1]
+
                     update.message.bot.edit_message_media(
-                        chat_id=last_message['chat_id'],
-                        message_id=last_message['message_id'],
+                        chat_id=last['chat_id'],
+                        message_id=last['message_id'],
                         media=InputMediaPhoto(photo),
                     )  # send photo
-
                     update.message.bot.edit_message_caption(
-                        chat_id=last_message['chat_id'],
-                        message_id=last_message['message_id'],
+                        chat_id=last['chat_id'],
+                        message_id=last['message_id'],
                         caption=text,
-                        reply_markup=InlineKeyboardMarkup(self.markup),
-                        parse_mode=ParseMode.HTML,
+                        reply_markup=markup,
                     )  # send text with keyboard markup
 
     def main_handler(self, update: Update, context: CallbackContext):
-        # build keyboard markup with proper localization
-        self.markup = self.build_keyboard()
+
+        context.user_data.update(
+            {
+                consts.TEXT: self.text,
+                consts.PHOTO: self.photo,
+                consts.KEYBOARD: self.keyboard
+            }
+        )
 
         self.custom_handler(update, context)
-
         self.add_back_button(update, context)  # builds back button
         self.send_page(update, context)  # reply to user sended message
 
         return self.entry  # return main state
-
-    def start_handler(self, update: Update, context: CallbackContext):
-        context.user_data['lang'] = 'en'
-        self.delete_history(update, context)  # remove previous messages
-        with open(self.photo, 'rb') as photo:
-            message = update.message.reply_photo(
-                photo=photo,
-                caption=self.get_string(f'text.{self.text}'),
-                reply_markup=InlineKeyboardMarkup(self.markup),
-                parse_mode=ParseMode.HTML,
-            )
-            context.user_data['messages_history'].append(message)
-        # send photo with text and keyboard markup
-        # trying to load user data
-        try:
-            user_profile = User(update.message.from_user.id)
-
-        except Exception:
-            self.create_user(update)
 
     def add_back_button(self, update: Update, context: CallbackContext):
         '''
         back enters every time when user pressing button
         it draws back button
         '''
-        print("context", context.user_data.get('check'))
-        context.user_data['check'] = True
-        history = context.user_data.get('history')
-        if history == None:
-            history = []
-        print('back history..', history)
 
-        if len(history) > 1 and history[-2] == self.entry:
+        history = context.user_data.get(consts.BACK)
+
+        if not history:
+            history = []
+
+        if (len(history) > 1) and (history[-2] == self.entry):
             history.pop()
         else:
             history.append(self.entry)
-        print('back history 2..', history)
 
         if len(history) > 1:
-            self.markup = self.build_keyboard(
-                lang=context.user_data.get('lang'),
-                btns=[
+            context.user_data.update(
+                {
+                    consts.KEYBOARD_DYNAMIC: [
+                        [
+                            [
+                                'back', history[-2]
+                            ]
+                        ]
+                    ]
+                }
+            )
+
+        context.user_data.update(
+            {
+                consts.BACK: history
+            }
+        )
+
+    def build_markup(self, update: Update, context: CallbackContext, lang: str = 'en'):
+        '''build_markup - builds a markup from keyboard and other buttons for sending it to user'''
+        m = []
+
+        if context.user_data.get(consts.KEYBOARD):
+            m = [
+                [
+                    InlineKeyboardButton(text=self.get_string(f'buttons.{key[0]}', lang), callback_data=key[1]) for key in raw
+                ] for raw in context.user_data.get(consts.KEYBOARD)
+            ]
+
+        if context.user_data.get(consts.KEYBOARD_DYNAMIC):
+            m.extend(
+                [
                     [
-                        ['back', history[-2]],
-                    ],
-                ])
-        context.user_data['history'] = history
+                        InlineKeyboardButton(text=self.get_string(f'buttons.{key[0]}', lang), callback_data=key[1]) for key in raw
+                    ] for raw in context.user_data.get(consts.KEYBOARD_DYNAMIC)
+                ]
+            )
 
-    def build_keyboard(self, lang: str = 'en', btns: list = []):
-        '''build - builds a markup from keyboard and other buttons for sending it to user'''
+        # print(context.user_data.get(consts.KEYBOARD))
+        # print(context.user_data.get(consts.KEYBOARD_DYNAMIC))
+        # print()
 
-        m = [
-            [
-                InlineKeyboardButton(text=self.get_string(f'buttons.{key[0]}', lang), callback_data=key[1]) for key in raw
-            ] for raw in self.keyboard
-        ]  # making new array of keyboard buttons
-        m.extend([
-            [
-                InlineKeyboardButton(text=self.get_string(f'buttons.{key[0]}', lang), callback_data=key[1]) for key in raw
-            ] for raw in btns
-        ])  # adding buttons
-
-        return m
+        return InlineKeyboardMarkup(m)
 
     def get_string(self, text: str, lang: str = 'en', *args, **kwargs):
         '''
@@ -167,31 +192,41 @@ class Page:
         return i18n.t(f'{text}', locale=lang, *args, **kwargs)
 
     def delete_history(self, update: Update, context: CallbackContext):
-        messages_history = context.user_data.get("messages_history")
-        if messages_history == None:
+
+        messages_history = context.user_data.get(consts.HISTORY)
+
+        if not messages_history:
             messages_history = []
 
-        if update.message == None:
-            bot = update.callback_query.bot
-        else:
+        if update.message:
             bot = update.message.bot
+        else:
+            bot = update.callback_query.bot
 
         for message in messages_history[::-1]:
             try:
                 bot.delete_message(
-                    chat_id=message['chat']['id'], message_id=message['message_id'])
+                    chat_id=message['chat']['id'],
+                    message_id=message['message_id']
+                )
             except telegram.error.BadRequest:
-                pass
+                pass  # !!! we should handle errors
+
             messages_history.pop()
-        context.user_data['messages_history'] = messages_history
+
+        context.user_data.update(
+            {
+                consts.HISTORY: messages_history
+            }
+        )
 
     def create_user(self, update: Update):
         user = update.message.from_user
         chat = update.message.bot.get_chat(chat_id=user.id).to_dict()
         photos = update.message.bot.getUserProfilePhotos(user_id=user.id)
 
-        name = user.first_name + " " if user.first_name else ""
-        name += user.last_name if user.last_name else ""
+        name = f'{user.first_name} ' if user.first_name else ""
+        name += f'{user.last_name}' if user.last_name else ""
 
         user_profile = User()
         user_profile['id'] = str(user.id)

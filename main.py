@@ -39,7 +39,7 @@ def error_handler(update: Update, context: CallbackContext):
                              text=message, parse_mode=ParseMode.HTML)
 
 
-def plane_messages_handler(update, context):
+def plane_messages_handler(update: Update, context: CallbackContext):
     update.message.delete()
 
 

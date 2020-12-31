@@ -31,70 +31,71 @@ class DealsPage(controller.Page):
 
                         ],
                         map_to_parent={
-                            self.entry: self.entry,
+                            consts.END: self.entry,
                         }
-                    )
+                    ),
+                ],
+            }
+        )
+
+    def custom_handler(self, update: Update, context: CallbackContext):
+        context.user_data.update(
+            {
+                consts.TEXT: self.entry,
+                consts.KEYBOARD: [
+                    [
+                        [
+                            '+', consts.ADD_DEAL
+                        ]
+                    ]
                 ]
             }
         )
 
-        # !!!??? update id = update id + 1
-
-    def custom_handler(self, update: Update, context: CallbackContext):
-        # how to check if user is admin???
-
-        # check for one deal
-        # deal = Deal(...)
-        # if deal.user.id == update.user.id
-
-        user = User(update.callback_query.from_user.id)
-
-        self.text = f'deals'
-        self.keyboard = [
-            [
-                [
-                    '+', consts.ADD_DEAL
-                ]
-            ]
-        ]
-        self.markup = self.build_keyboard()
-
     def add_deal(self, update: Update, context: CallbackContext):
-        self.keyboard = []
-        self.text = f'ask_location'
+        context.user_data.update(
+            {
+                consts.TEXT: f'ask_location',
+                consts.KEYBOARD: []
+            }
+        )
 
-        self.markup = self.build_keyboard()
         self.send_page(update, context)
         return consts.EDIT_LOCATION
 
     def ask_location(self, update: Update, context: CallbackContext):
-
-        self.text = f'ask_description'
-        self.keyboard = [
-            [
-                [
-                    'cancel', consts.CANCEL
+        context.user_data.update(
+            {
+                consts.TEXT: f'ask_description',
+                consts.KEYBOARD: [
+                    [
+                        [
+                            'cancel', consts.CANCEL
+                        ]
+                    ]
                 ]
-            ]
-        ]
+            }
+        )
 
-        self.markup = self.build_keyboard()
         self.send_page(update, context)
         return consts.EDIT_DESCRIPTION
 
     def ask_description(self, update: Update, context: CallbackContext):
-        self.text = f'deals'
-        self.keyboard = [
-            [
-                [
-                    '+', consts.ADD_DEAL
+        context.user_data.update(
+            {
+                consts.TEXT: self.text,
+                consts.KEYBOARD: [
+                    [
+                        [
+                            '+', consts.ADD_DEAL
+                        ]
+                    ]
                 ]
-            ]
-        ]
+            }
+        )
 
-        self.markup = self.build_keyboard()
         self.send_page(update, context)
-        return self.entry
+        return consts.END
 
 
 Deals = DealsPage().handler

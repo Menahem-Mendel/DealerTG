@@ -13,7 +13,6 @@ en:
   bookmark: bookmark 📑
   help: help 💬
   info: info ℹ️
-  back: back
   chat: lets chat 💬
   comments: comments 💬
   rogue: rogue ⚠️
@@ -24,4 +23,5 @@ en:
   left: ⬅
   right: ➡
   +: +
-  # categories: categories
+  
+  back: back

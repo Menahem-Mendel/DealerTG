@@ -33,6 +33,13 @@ ADMIN = 'admin'
 #
 TEXT = 'text'
 TEXT_VARS = 'textvars'
-HISTORY = 'history'
 BACK = 'back'
 DONE = 'done'
+
+BACK_HISTORY = 'history'
+HISTORY = 'message_history'
+
+TG_PHOTO = 'tgphoto'
+PHOTO = 'photo'
+KEYBOARD = 'keyboard'
+KEYBOARD_DYNAMIC = 'keyboarddynamic'
